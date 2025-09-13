@@ -1,48 +1,59 @@
+type Protocol @entity(immutable:false) {
+  id: String!                  
+  totalStaked: BigInt!          
+  totalRewardsClaimed: BigInt!  
+  totalWithdrawn: BigInt!       
+  totalEmergencyWithdrawn: BigInt!
+  users: [User!]! @derivedFrom(field: "protocol")
+}
+
 type Transaction @entity(immutable: true) {
   id: Bytes!
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   timestamp: BigInt!
 }
+
 type EmergencyWithdrawn @entity(immutable: true) {
   id: Bytes!
-  user: User! # address
-  amount: BigInt! # uint256
-  penalty: BigInt! # uint256
-  newTotalStaked: BigInt! # uint256
+  user: User!
+  amount: BigInt!
+  penalty: BigInt!
+  newTotalStaked: BigInt!
   transactionData: Transaction!
 }
 
 type RewardsClaimed @entity(immutable: true) {
   id: Bytes!
-  user: User! # address
-  amount: BigInt! # uint256
-  newPendingRewards: BigInt! # uint256
-  totalStaked: BigInt! # uint256
+  user: User!
+  amount: BigInt!
+  newPendingRewards: BigInt!
+  totalStaked: BigInt!
   transactionData: Transaction!
 }
 
 type Staked @entity(immutable: true) {
   id: Bytes!
-  user: User! # address
-  amount: BigInt! # uint256
-  newTotalStaked: BigInt! # uint256
-  currentRewardRate: BigInt! # uint256
+  user: User!
+  amount: BigInt!
+  newTotalStaked: BigInt!
+  currentRewardRate: BigInt!
   transactionData: Transaction!
-
 }
 
 type Withdrawn @entity(immutable: true) {
   id: Bytes!
-  user: User! # address
-  amount: BigInt! # uint256
-  newTotalStaked: BigInt! # uint256
-  currentRewardRate: BigInt! # uint256
-  rewardsAccrued: BigInt! # uint256
+  user: User!
+  amount: BigInt!
+  newTotalStaked: BigInt!
+  currentRewardRate: BigInt!
+  rewardsAccrued: BigInt!
   transactionData: Transaction!
 }
+
 type User @entity(immutable:false) {
   id: Bytes!
+  protocol: Protocol
   stakes: [Staked!]! @derivedFrom(field: "user")
   withdrawals: [Withdrawn!]! @derivedFrom(field: "user")
   emergencyWithdrawals: [EmergencyWithdrawn!]! @derivedFrom(field: "user")

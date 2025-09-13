@@ -22,6 +22,7 @@ dataSources:
         - Withdrawn
         - Transaction
         - User
+        - Protocol
       abis:
         - name: StakingContract
           file: ./abis/StakingContract.json
