@@ -23,12 +23,13 @@ function handleSingletonProtocolCreation(): Protocol {
     protocol.totalRewardsClaimed = BigInt.zero()
     protocol.totalWithdrawn = BigInt.zero()
     protocol.totalEmergencyWithdrawn = BigInt.zero()
+    protocol.currentRewardRate = 0 as i32
     protocol.save()
   }
-  return protocol as Protocol
+  return protocol
 }
 
-function handleSingletonUserCreation(userAddress: Address): User {
+function handleUserCreation(userAddress: Address): User {
   let protocol = handleSingletonProtocolCreation()
   let user = User.load(userAddress as Bytes)
   if (!user) {
@@ -36,8 +37,8 @@ function handleSingletonUserCreation(userAddress: Address): User {
     user.protocol = protocol.id
     user.save()
     protocol.save()
-  }
-  return user as User
+  } 
+  return user
 }
 
 function handleCreateTransaction(event: ethereum.Event): Bytes {
@@ -49,10 +50,11 @@ function handleCreateTransaction(event: ethereum.Event): Bytes {
   return entity.id
 }
 
+
 export function handleEmergencyWithdrawn(event: EmergencyWithdrawnEvent): void {
   let protocol = handleSingletonProtocolCreation()
   let entity = new EmergencyWithdrawn(event.transaction.hash)
-  entity.user = handleSingletonUserCreation(event.params.user).id
+  entity.user = handleUserCreation(event.params.user).id
   entity.amount = event.params.amount
   entity.penalty = event.params.penalty
   entity.newTotalStaked = event.params.newTotalStaked
@@ -66,7 +68,7 @@ export function handleEmergencyWithdrawn(event: EmergencyWithdrawnEvent): void {
 export function handleRewardsClaimed(event: RewardsClaimedEvent): void {
   let protocol = handleSingletonProtocolCreation()
   let entity = new RewardsClaimed(event.transaction.hash)
-  entity.user = handleSingletonUserCreation(event.params.user).id
+  entity.user = handleUserCreation(event.params.user).id
   entity.amount = event.params.amount
   entity.newPendingRewards = event.params.newPendingRewards
   entity.totalStaked = event.params.totalStaked
@@ -79,20 +81,21 @@ export function handleRewardsClaimed(event: RewardsClaimedEvent): void {
 export function handleStaked(event: StakedEvent): void {
   let protocol = handleSingletonProtocolCreation()
   let entity = new Staked(event.transaction.hash)
-  entity.user = handleSingletonUserCreation(event.params.user).id
+  entity.user = handleUserCreation(event.params.user).id
   entity.amount = event.params.amount
   entity.newTotalStaked = event.params.newTotalStaked
   entity.currentRewardRate = event.params.currentRewardRate
   entity.transactionData = handleCreateTransaction(event)
   entity.save()
   protocol.totalStaked = event.params.newTotalStaked
+  protocol.currentRewardRate = event.params.currentRewardRate.toI32()
   protocol.save()
 }
 
 export function handleWithdrawn(event: WithdrawnEvent): void {
   let protocol = handleSingletonProtocolCreation()
   let entity = new Withdrawn(event.transaction.hash)
-  entity.user = handleSingletonUserCreation(event.params.user).id
+  entity.user = handleUserCreation(event.params.user).id
   entity.amount = event.params.amount
   entity.newTotalStaked = event.params.newTotalStaked
   entity.currentRewardRate = event.params.currentRewardRate

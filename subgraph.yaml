@@ -21,7 +21,7 @@ dataSources:
         - Staked
         - Withdrawn
         - Transaction
-        - User
+        - User 
         - Protocol
       abis:
         - name: StakingContract

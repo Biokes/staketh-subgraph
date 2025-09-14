@@ -4,6 +4,7 @@ type Protocol @entity(immutable:false) {
   totalRewardsClaimed: BigInt!  
   totalWithdrawn: BigInt!       
   totalEmergencyWithdrawn: BigInt!
+  currentRewardRate: Int!
   users: [User!]! @derivedFrom(field: "protocol")
 }
 
